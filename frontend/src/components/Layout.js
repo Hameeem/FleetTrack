@@ -1,30 +1,33 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSelector } from 'react-redux';
-import { Box, Flex, Spinner, Center, Text } from '@chakra-ui/react';
+import { Box, Flex, Spinner, Center } from '@chakra-ui/react';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 
 export default function Layout({ children }) {
   const router = useRouter();
-  const { isAuthenticated, loading } = useSelector((state) => state.auth);
+  const { isAuthenticated } = useSelector((state) => state.auth);
+
+  const cleanPath = router.pathname.toLowerCase();
+  const isAuthPage = cleanPath.includes('/login') || cleanPath.includes('/register');
 
   useEffect(() => {
-    if (!isAuthenticated && !['/login', '/register'].includes(router.pathname)) {
-      router.push('/login');
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('fleettrack_token');
+      if (!token && !isAuthPage) {
+        router.push('/login');
+      }
     }
-  }, [isAuthenticated, router.pathname]);
+  }, [isAuthenticated, isAuthPage, router]);
 
-  if (['/login', '/register'].includes(router.pathname)) {
+  if (isAuthPage) {
     return <Box minH="100vh" bg="gray.50">{children}</Box>;
   }
 
-  if (!isAuthenticated) {
-    return (
-      <Center h="100vh" bg="gray.50">
-        <Spinner size="xl" color="blue.500" thickness="4px" />
-      </Center>
-    );
+  // If not authenticated in Redux and no token in localStorage, show login layout fallback immediately
+  if (!isAuthenticated && typeof window !== 'undefined' && !localStorage.getItem('fleettrack_token')) {
+    return <Box minH="100vh" bg="gray.50">{children}</Box>;
   }
 
   return (

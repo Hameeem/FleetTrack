@@ -1,8 +1,20 @@
 /** @type {import('next').NextConfig} */
+const isGithubActions = process.env.GITHUB_ACTIONS || false;
+
+let repo = '';
+if (isGithubActions) {
+  const repository = process.env.GITHUB_REPOSITORY || '';
+  repo = repository.split('/')[1] || 'FleetTrack';
+}
+
+const basePath = repo ? `/${repo}` : '';
+
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   output: 'export',
+  basePath: basePath,
+  assetPrefix: basePath ? `${basePath}/` : '',
   images: {
     unoptimized: true
   },
