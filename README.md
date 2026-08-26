@@ -4,9 +4,9 @@
 [![Next.js Version](https://img.shields.io/badge/next.js-v14.2-blue.svg)](https://nextjs.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Live Demo: https://fleettrack-saas.vercel.app  
-GitHub: https://github.com/hameem/fleettrack  
-API: https://api-fleettrack.render.com  
+
+GitHub: https://github.com/hameem/FleetTrack
+
 
 ---
 
