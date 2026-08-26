@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 
-GitHub: https://github.com/hameem/FleetTrack
+GitHub: https://github.com/Hameeem/FleetTrack
 
 
 ---
