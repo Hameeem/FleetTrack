@@ -41,29 +41,34 @@ export default function Login() {
     const loginEmail = (targetEmail || email || 'manager@apexlogistics.com').toLowerCase();
     const loginPass = targetPassword || password || 'Password123!';
 
-    try {
-      const response = await api.post('/auth/login', { email: loginEmail, password: loginPass });
-      if (response && response.data && response.data.success) {
-        dispatch(setAuthSuccess({
-          user: response.data.user,
-          token: response.data.token
-        }));
-        toast({
-          title: `Welcome back, ${response.data.user.name}!`,
-          description: `Logged in to ${response.data.user.organization_name} as ${response.data.user.role}`,
-          status: 'success',
-          duration: 4000,
-          isClosable: true
-        });
-        setLoading(false);
-        router.push('/dashboard');
-        return;
+    const isGithub = typeof window !== 'undefined' && window.location.hostname.includes('github.io');
+
+    // On local or live server with working API -> Attempt real backend login
+    if (!isGithub) {
+      try {
+        const response = await api.post('/auth/login', { email: loginEmail, password: loginPass });
+        if (response && response.data && response.data.success) {
+          dispatch(setAuthSuccess({
+            user: response.data.user,
+            token: response.data.token
+          }));
+          toast({
+            title: `Welcome back, ${response.data.user.name}!`,
+            description: `Logged in to ${response.data.user.organization_name} as ${response.data.user.role}`,
+            status: 'success',
+            duration: 4000,
+            isClosable: true
+          });
+          setLoading(false);
+          router.push('/dashboard');
+          return;
+        }
+      } catch (err) {
+        console.warn('Real API server unreachable. Engaging demo login mode for:', loginEmail);
       }
-    } catch (err) {
-      console.warn('Real API server unreachable. Engaging guaranteed demo login mode for:', loginEmail);
     }
 
-    // Direct Guaranteed Client-Side Demo Login Fallback
+    // Direct Guaranteed Client-Side Demo Login for GitHub Pages & Offline Mode
     const demoUser = mockUsers.find(u => u.email.toLowerCase() === loginEmail) || {
       id: loginEmail.includes('admin') ? 1 : loginEmail.includes('driver') ? 3 : 2,
       name: loginEmail.includes('admin') ? 'Sarah Jenkins (Admin)' : loginEmail.includes('driver') ? 'John Miller (Driver)' : 'Marcus Vance (Manager)',
