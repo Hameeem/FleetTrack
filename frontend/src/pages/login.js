@@ -34,13 +34,15 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const handleLogin = async (e) => {
-    if (e) e.preventDefault();
+  const executeLoginWithEmail = async (targetEmail, targetPassword) => {
     setLoading(true);
     setErrorMsg('');
 
+    const loginEmail = (targetEmail || email || 'manager@apexlogistics.com').toLowerCase();
+    const loginPass = targetPassword || password || 'Password123!';
+
     try {
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post('/auth/login', { email: loginEmail, password: loginPass });
       if (response && response.data && response.data.success) {
         dispatch(setAuthSuccess({
           user: response.data.user,
@@ -58,19 +60,18 @@ export default function Login() {
         return;
       }
     } catch (err) {
-      console.warn('Real API server unreachable. Engaging guaranteed demo login mode.');
+      console.warn('Real API server unreachable. Engaging guaranteed demo login mode for:', loginEmail);
     }
 
     // Direct Guaranteed Client-Side Demo Login Fallback
-    const reqEmail = (email || 'manager@apexlogistics.com').toLowerCase();
-    const demoUser = mockUsers.find(u => u.email.toLowerCase() === reqEmail) || {
-      id: 2,
-      name: 'Marcus Vance (Manager)',
-      email: reqEmail,
-      role: reqEmail.includes('admin') ? 'Admin' : reqEmail.includes('driver') ? 'Driver' : 'Manager',
-      organization_id: reqEmail.includes('global') ? 2 : 1,
-      organization_name: reqEmail.includes('global') ? 'Global Express Delivery' : 'Apex Logistics Inc.',
-      employee_id: 'EMP-APEX-002'
+    const demoUser = mockUsers.find(u => u.email.toLowerCase() === loginEmail) || {
+      id: loginEmail.includes('admin') ? 1 : loginEmail.includes('driver') ? 3 : 2,
+      name: loginEmail.includes('admin') ? 'Sarah Jenkins (Admin)' : loginEmail.includes('driver') ? 'John Miller (Driver)' : 'Marcus Vance (Manager)',
+      email: loginEmail,
+      role: loginEmail.includes('admin') ? 'Admin' : loginEmail.includes('driver') ? 'Driver' : 'Manager',
+      organization_id: loginEmail.includes('global') ? 2 : 1,
+      organization_name: loginEmail.includes('global') ? 'Global Express Delivery' : 'Apex Logistics Inc.',
+      employee_id: 'EMP-APEX-001'
     };
 
     const demoToken = 'demo-jwt-token-2026-apex';
@@ -88,9 +89,15 @@ export default function Login() {
     router.push('/dashboard');
   };
 
-  const setDemoCredentials = (demoEmail) => {
+  const handleLogin = (e) => {
+    if (e) e.preventDefault();
+    executeLoginWithEmail(email, password);
+  };
+
+  const quickDemoLogin = (demoEmail) => {
     setEmail(demoEmail);
     setPassword('Password123!');
+    executeLoginWithEmail(demoEmail, 'Password123!');
   };
 
   return (
@@ -180,7 +187,7 @@ export default function Login() {
                 size="xs"
                 variant="outline"
                 colorScheme="purple"
-                onClick={() => setDemoCredentials('admin@apexlogistics.com')}
+                onClick={() => quickDemoLogin('admin@apexlogistics.com')}
               >
                 Apex Admin
               </Button>
@@ -188,7 +195,7 @@ export default function Login() {
                 size="xs"
                 variant="outline"
                 colorScheme="blue"
-                onClick={() => setDemoCredentials('manager@apexlogistics.com')}
+                onClick={() => quickDemoLogin('manager@apexlogistics.com')}
               >
                 Apex Manager
               </Button>
@@ -196,7 +203,7 @@ export default function Login() {
                 size="xs"
                 variant="outline"
                 colorScheme="green"
-                onClick={() => setDemoCredentials('john.miller@apexlogistics.com')}
+                onClick={() => quickDemoLogin('john.miller@apexlogistics.com')}
               >
                 Apex Driver
               </Button>
@@ -204,7 +211,7 @@ export default function Login() {
                 size="xs"
                 variant="outline"
                 colorScheme="teal"
-                onClick={() => setDemoCredentials('admin@globalexpress.com')}
+                onClick={() => quickDemoLogin('admin@globalexpress.com')}
               >
                 Global Exp. Admin
               </Button>
