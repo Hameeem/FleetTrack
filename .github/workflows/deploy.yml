@@ -29,8 +29,8 @@ jobs:
           npm run build
           touch out/.nojekyll
         env:
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://fleettrack-api.onrender.com/api' }}
-          NEXT_PUBLIC_WS_URL: ${{ secrets.NEXT_PUBLIC_WS_URL || 'https://fleettrack-api.onrender.com' }}
+          NEXT_PUBLIC_API_URL: ''
+          NEXT_PUBLIC_WS_URL: ''
 
       - name: Deploy to gh-pages Branch
         uses: PeaceIris/actions-gh-pages@v3

@@ -25,13 +25,26 @@ const reportRoutes = require('./src/routes/reports');
 const app = express();
 const server = http.createServer(app);
 
-// CORS Configuration supporting GitHub Pages and all origins
+// Explicit CORS Headers Middleware for All Requests & Preflights
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 const corsOptions = {
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true
 };
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // Initialize Socket.io
 const io = new Server(server, {
@@ -40,9 +53,6 @@ const io = new Server(server, {
 
 // Middleware
 app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV !== 'test') {
@@ -68,7 +78,7 @@ app.use('/api/geofences', geofenceRoutes);
 app.use('/api/incidents', incidentRoutes);
 app.use('/api/reports', reportRoutes);
 
-// Catch-all 404
+// Catch-all 404 with explicit CORS headers
 app.use((req, res) => {
   res.status(404).json({ success: false, message: `Endpoint '${req.originalUrl}' not found.` });
 });
