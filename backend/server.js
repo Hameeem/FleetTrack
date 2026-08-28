@@ -25,17 +25,24 @@ const reportRoutes = require('./src/routes/reports');
 const app = express();
 const server = http.createServer(app);
 
+// CORS Configuration supporting GitHub Pages and all origins
+const corsOptions = {
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: true
+};
+
 // Initialize Socket.io
 const io = new Server(server, {
-  cors: {
-    origin: process.env.CORS_ORIGIN || '*',
-    methods: ['GET', 'POST']
-  }
+  cors: corsOptions
 });
 
 // Middleware
 app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors());
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV !== 'test') {
